@@ -1,0 +1,25 @@
+{
+  "name": "roxygrabber",
+  "version": "1.0.0",
+  "description": "Screen grabber for roxy's web site",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Satyam/roxygrabber.git"
+  },
+  "keywords": [],
+  "author": "Daniel Barreiro <satyam@satyam.com.ar> (Satyam)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Satyam/roxygrabber/issues"
+  },
+  "homepage": "https://github.com/Satyam/roxygrabber#readme",
+  "dependencies": {
+    "fs-extra": "^9.0.1",
+    "puppeteer-core": "^5.2.1"
+  }
+}
