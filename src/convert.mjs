@@ -58,9 +58,29 @@ const postType = (doc, entry) => {
     .getAttribute('href');
 };
 
+const regularPage = (doc, entry) => {
+  entry.content = doc
+    .querySelectorAll('main :not(div)')
+    .map((el) => el.removeAttribute('id').removeAttribute('class').outerHTML);
+
+  entry.ogSite_name = getMeta(doc, 'og:site_name');
+  entry.ogType = getMeta(doc, 'og:type');
+  entry.canonical = doc
+    .querySelector('link[rel="canonical"]')
+    .getAttribute('href');
+};
 const types = {
   'roxanacabut/single-post/': postType,
   'roxanacabut/post/': postType,
+  'roxanacabut/acompanamiento-creativo': regularPage,
+  'roxanacabut/agenda': regularPage,
+  'roxanacabut/contacto': regularPage,
+  'roxanacabut/escritos': regularPage,
+  'roxanacabut/libro-la-corazon': regularPage,
+  'roxanacabut/mas-informacion': regularPage,
+  'roxanacabut/sessiones-individuales-de-masaje': regularPage,
+  'roxanacabut/talleres-de-movimiento': regularPage,
+  'roxanacabut/talleres-sobre-comunicacion': regularPage,
 };
 const files = await globby(join(__dirname, '../html/**/*.html'));
 for (const file of files) {
