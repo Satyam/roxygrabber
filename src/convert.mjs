@@ -1,7 +1,7 @@
 import { parse } from 'node-html-parser';
 import { globby } from 'globby';
 import { readFile, writeFile } from 'node:fs/promises';
-import { ensureDir, outputJson } from 'fs-extra/esm';
+import { ensureDir, outputJson, emptyDir } from 'fs-extra/esm';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'url';
 
@@ -20,6 +20,41 @@ export const sortDescending = (a, b) => {
 const getMeta = (doc, property) =>
   doc.querySelector(`meta[property="${property}"]`)?.getAttribute('content');
 
+const cleanImgEl = (img) => {
+  Object.keys(img.attributes).forEach((attr) => {
+    if (attr === 'src') {
+      img.setAttribute(
+        'src',
+        img
+          .getAttribute('src')
+          .replace(
+            /^https:\/\/static.wixstatic.com\/media\/(.*\.jpg).*/,
+            '/assets/img/$1'
+          )
+      );
+    } else {
+      img.removeAttribute(attr);
+    }
+  });
+};
+const getContent = (doc, container) => {
+  const els = doc.querySelectorAll(`${container} :not(div, wix-image, style)`);
+  return els
+    .filter((el) => !els.includes(el.parentNode))
+    .map((el) => {
+      el.querySelectorAll('[class]').forEach((el) =>
+        el.removeAttribute('class')
+      );
+      if (el.tagName.toLowerCase() === 'img') cleanImgEl(el);
+      el.querySelectorAll('img').forEach(cleanImgEl);
+
+      return el
+        .removeWhitespace()
+        .removeAttribute('id')
+        .removeAttribute('class')
+        .outerHTML.replace('https://roxanacabut.wixsite.com/roxanacabut', '');
+    });
+};
 const postType = (doc, entry) => {
   const catSlugRx = /\/categories(\/.*)/;
 
@@ -45,9 +80,7 @@ const postType = (doc, entry) => {
 
   entry.ogSite_name = getMeta(doc, 'og:site_name');
   entry.ogType = getMeta(doc, 'og:type');
-  entry.content = doc
-    .querySelectorAll('div.post-content__body :not(div)')
-    .map((el) => el.removeAttribute('id').removeAttribute('class').outerHTML); //`<${el.tagName}>${el.innerHTML}</${el.tagName}>`);
+  entry.content = getContent(doc, 'div.post-content__body');
 
   entry.author = getMeta(doc, 'article:author');
   entry.published_time = getMeta(doc, 'article:published_time');
@@ -59,9 +92,7 @@ const postType = (doc, entry) => {
 };
 
 const regularPage = (doc, entry) => {
-  entry.content = doc
-    .querySelectorAll('main :not(div)')
-    .map((el) => el.removeAttribute('id').removeAttribute('class').outerHTML);
+  entry.content = getContent(doc, 'main');
 
   entry.ogSite_name = getMeta(doc, 'og:site_name');
   entry.ogType = getMeta(doc, 'og:type');
@@ -82,6 +113,9 @@ const types = {
   'roxanacabut/talleres-de-movimiento': regularPage,
   'roxanacabut/talleres-sobre-comunicacion': regularPage,
 };
+
+const images = {};
+
 const files = await globby(join(__dirname, '../html/**/*.html'));
 for (const file of files) {
   const name = file.replace(HOME, '').replace('.html', '').toLowerCase();
@@ -92,6 +126,27 @@ for (const file of files) {
   entry.description = doc
     .querySelector('meta[name="description"]')
     ?.getAttribute('content');
+
+  doc.querySelectorAll('img').forEach((imgEl) => {
+    const src = imgEl.getAttribute('src');
+    // if (!images[src]) {
+    //   images[src] = [];
+    // }
+    // images[src].push(imgEl.attributes);
+    if (!images[src]) images[src] = 0;
+    images[src]++;
+  });
+
+  entry.menu = doc.querySelectorAll('nav a').reduce(
+    (menu, aEl) => ({
+      ...menu,
+      [aEl
+        .getAttribute('href')
+        ?.replace('https://roxanacabut.wixsite.com/roxanacabut', '')]:
+        aEl.removeWhitespace().textContent,
+    }),
+    {}
+  );
   // entry.og = doc.querySelectorAll('meta[property^="og:"]').reduce(
   //   (ogs, el) => ({
   //     ...ogs,
@@ -119,3 +174,11 @@ for (const file of files) {
 
   await outputJson(join(DEST_JSON, entry.name) + '.json', entry, { spaces: 2 });
 }
+
+await outputJson(join(__dirname, 'images.json'), images, { spaces: 2 });
+await writeFile(
+  join(__dirname, 'images.html'),
+  Object.keys(images)
+    .map((imgSrc) => `<img src="${imgSrc.replace(/^(.*\.jpg).*/, '$1')}" />`)
+    .join('\n')
+);
