@@ -9,22 +9,22 @@
     <title>{{post.title}} | {{site.name}}</title>
     <meta property="og:title" content="{{post.title}}" />
     <meta property="og:locale" content="{{post.locale}}" />
-    <meta name="description" content="{{post.excerpt}}" />
-    <meta property="og:description" content="{{post.excerpt}}" />
+    <meta name="description" content="{{post.description}}" />
+    <meta property="og:description" content="{{post.description}}" />
     <link rel="canonical" href="{{post.fullURL}}" />
     <meta property="og:url" content="{{post.fullURL}}" />
     <meta property="og:site_name" content="{{site.name}}" />
     <meta property="og:type" content="article" />
-    <meta property="article:published_time" content="{{post.ISODate}}" />
+    <meta property="article:published_time" content="{{post.published_time}}" />
     <meta name="twitter:card" content="summary" />
     <meta property="twitter:title" content="{{post.title}}" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
-        "dateModified": "{{post.ISODate}}",
-        "datePublished": "{{post.ISODate}}",
-        "description": "{{post.excerpt}}",
+        "dateModified": "{{post.modified_time}}",
+        "datePublished": "{{post.published_time}}",
+        "description": "{{post.description}}",
         "headline": "{{post.title}}",
         "mainEntityOfPage": {
           "@type": "WebPage",
@@ -94,7 +94,7 @@
             {{post.content}}
           </div>
           <footer class="post-footer">{{template.articleFooter}}</footer>
-          <a class="u-url" href="{{site.root}}{{post.relURL}}" hidden></a>
+          <a class="u-url" href="{{site.root}}/{{post.relURL}}" hidden></a>
         </article>
       </div>
     </main>

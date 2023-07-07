@@ -124,3 +124,46 @@ time {
 #searchform {
   display: inline-block;
 }
+
+.site-nav ​ul {
+  font-family: Arial, Verdana;
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.site-nav ul li {
+  display: block;
+  position: relative;
+  float: left;
+}
+.site-nav li ul {
+  display: none;
+}
+.site-nav ul li a {
+  display: block;
+  text-decoration: none;
+  color: #ffffff;
+  border-top: 1px solid #ffffff;
+  padding: 5px 15px 5px 15px;
+  background: #2c5463;
+  margin-left: 1px;
+  white-space: nowrap;
+}
+.site-nav ul li a:hover {
+  background: #617f8a;
+}
+.site-nav li:hover ul {
+  display: block;
+  position: absolute;
+}
+.site-nav li:hover li {
+  float: none;
+  font-size: 11px;
+}
+.site-nav li:hover a {
+  background: #617f8a;
+}
+.site-nav li:hover li a:hover {
+  background: #95a9b1;
+}
