@@ -1,15 +1,13 @@
 import { parse } from 'node-html-parser';
 import { globby } from 'globby';
 import { readFile, writeFile } from 'node:fs/promises';
-import { ensureDir, outputJson, emptyDir } from 'fs-extra/esm';
-import { join, dirname, basename } from 'node:path';
-import { fileURLToPath } from 'url';
+import { outputJson, emptyDir } from 'fs-extra/esm';
+import { join, basename } from 'node:path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { __dirname, SRC_DIRS } from './constants.mjs';
 
-const HOME = join(__dirname, '../html/');
-const DEST_JSON = join(__dirname, '../json');
-const DEST = join(__dirname, '../new');
+const OLD_SITE = /^https:\/\/roxanacabut.wixsite.com\/roxanacabut/;
+const OLD_IMGS = /^https:\/\/static.wixstatic.com\/media\/(.*\.jpg).*/;
 
 export const sortDescending = (a, b) => {
   if (a < b) return 1;
@@ -25,12 +23,7 @@ const cleanImgEl = (img) => {
     if (attr === 'src') {
       img.setAttribute(
         'src',
-        img
-          .getAttribute('src')
-          .replace(
-            /^https:\/\/static.wixstatic.com\/media\/(.*\.jpg).*/,
-            '/assets/img/$1'
-          )
+        img.getAttribute('src').replace(OLD_IMGS, '/assets/img/$1')
       );
     } else {
       img.removeAttribute(attr);
@@ -45,6 +38,7 @@ const getContent = (doc, container) => {
       el.querySelectorAll('[class]').forEach((el) =>
         el.removeAttribute('class')
       );
+      el.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
       if (el.tagName.toLowerCase() === 'img') cleanImgEl(el);
       el.querySelectorAll('img').forEach(cleanImgEl);
 
@@ -54,7 +48,7 @@ const getContent = (doc, container) => {
         .removeAttribute('class').outerHTML;
     })
     .join('\n')
-    .replace('https://roxanacabut.wixsite.com/roxanacabut', '');
+    .replace(OLD_SITE, '');
 };
 const postType = (doc, entry) => {
   const catSlugRx = /\/categories(\/.*)/;
@@ -87,7 +81,7 @@ const postType = (doc, entry) => {
   entry.published_time = getMeta(doc, 'article:published_time');
   entry.modified_time = getMeta(doc, 'article:modified_time');
 
-  entry.canonical = doc
+  entry.fullURL = doc
     .querySelector('link[rel="canonical"]')
     .getAttribute('href');
 };
@@ -97,9 +91,10 @@ const regularPage = (doc, entry) => {
 
   entry.ogSite_name = getMeta(doc, 'og:site_name');
   entry.ogType = getMeta(doc, 'og:type');
-  entry.canonical = doc
+  entry.fullURL = doc
     .querySelector('link[rel="canonical"]')
-    .getAttribute('href');
+    .getAttribute('href')
+    .replace(OLD_SITE, '');
 };
 const types = {
   'roxanacabut/single-post/': postType,
@@ -117,13 +112,18 @@ const types = {
 
 const images = {};
 
+await emptyDir(SRC_DIRS.JSON_FILES);
 const files = await globby(join(__dirname, '../html/**/*.html'));
 for (const file of files) {
-  const name = file.replace(HOME, '').replace('.html', '').toLowerCase();
+  const name = file
+    .replace(SRC_DIRS.HTML_FILES, '')
+    .replace('.html', '')
+    .replaceAll(/\-+/g, '-')
+    .toLowerCase();
   console.log(name);
   const entry = { name };
   const doc = parse(await readFile(file));
-  entry.title = doc.querySelector('title').innerHTML;
+  entry.title = doc.querySelector('title').innerHTML.split('|')[0];
   entry.description = doc
     .querySelector('meta[name="description"]')
     ?.getAttribute('content');
@@ -141,9 +141,7 @@ for (const file of files) {
   entry.menu = doc.querySelectorAll('nav a').reduce(
     (menu, aEl) => ({
       ...menu,
-      [aEl
-        .getAttribute('href')
-        ?.replace('https://roxanacabut.wixsite.com/roxanacabut', '')]:
+      [aEl.getAttribute('href')?.replace(OLD_SITE, '')]:
         aEl.removeWhitespace().textContent,
     }),
     {}
@@ -173,7 +171,9 @@ for (const file of files) {
     .find((type) => entry.name.startsWith(type));
   if (fn) types[fn](doc, entry);
 
-  await outputJson(join(DEST_JSON, entry.name) + '.json', entry, { spaces: 2 });
+  await outputJson(join(SRC_DIRS.JSON_FILES, entry.name) + '.json', entry, {
+    spaces: 2,
+  });
 }
 
 await outputJson(join(__dirname, 'images.json'), images, { spaces: 2 });
