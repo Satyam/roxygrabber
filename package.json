@@ -4,7 +4,8 @@
   "description": "Screen grabber for roxy's web site",
   "main": "index.js",
   "scripts": {
-    "start": "node src/convert.mjs",
+    "start": "serve new",
+    "convert": "node src/convert.mjs",
     "debug": "node --inspect-brk src/check.mjs",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node src/toHTML.mjs"

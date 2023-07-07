@@ -51,9 +51,10 @@ const getContent = (doc, container) => {
       return el
         .removeWhitespace()
         .removeAttribute('id')
-        .removeAttribute('class')
-        .outerHTML.replace('https://roxanacabut.wixsite.com/roxanacabut', '');
-    });
+        .removeAttribute('class').outerHTML;
+    })
+    .join('\n')
+    .replace('https://roxanacabut.wixsite.com/roxanacabut', '');
 };
 const postType = (doc, entry) => {
   const catSlugRx = /\/categories(\/.*)/;
