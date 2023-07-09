@@ -5,7 +5,7 @@ import { readJson } from 'fs-extra/esm';
 export const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const SRC_DIRS = {
-  HTML_FILES: join(__dirname, '../html/'),
+  HTML_FILES: join(__dirname, '../html/roxanacabut'),
   JSON_FILES: join(__dirname, '../json'),
   TEMPLATES: join(__dirname, 'templates'),
   STYLES: join(__dirname, 'styles'),
