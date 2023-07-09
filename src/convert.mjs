@@ -30,6 +30,7 @@ const cleanImgEl = (img) => {
     }
   });
 };
+
 const getContent = (doc, container) => {
   const els = doc.querySelectorAll(`${container} :not(div, wix-image, style)`);
   return els
@@ -102,7 +103,7 @@ const authorType = (doc, entry) => {
   entry.content = getContent(doc, 'main');
   authorIndex.push({
     name: entry.name,
-    author: doc.querySelector('main a')?.innerHTML,
+    author: doc.querySelector('main a')?.text,
   });
 };
 
@@ -143,40 +144,6 @@ const types = {
 };
 
 const images = {};
-
-// // fix the missing index.html
-
-// if (await access(`${SRC_DIRS.HTML_FILES}.html`)) {
-//   console.log(
-//     'copy',
-//     `${SRC_DIRS.HTML_FILES}.html`,
-//     join(SRC_DIRS.HTML_FILES, 'index.html')
-//   );
-//   // await copy(
-//   //   `${SRC_DIRS.HTML_FILES}.html`,
-//   //   join(SRC_DIRS.HTML_FILES, 'index.html')
-//   // );
-//   console.log(
-//     'copy',
-//     join(SRC_DIRS.HTML_FILES, 'blog.html'),
-//     join(SRC_DIRS.HTML_FILES, 'blog/index.html')
-//   );
-//   // await copy(
-//   //   join(SRC_DIRS.HTML_FILES, 'blog.html'),
-//   //   join(SRC_DIRS.HTML_FILES, 'blog/index.html')
-//   // );
-//   console.log(
-//     'copy',
-//     join(SRC_DIRS.HTML_FILES, 'blog-1.html'),
-//     join(SRC_DIRS.HTML_FILES, 'blog-1/index.html')
-//   );
-//   // await copy(
-//   //   join(SRC_DIRS.HTML_FILES, 'blog-1.html'),
-//   //   join(SRC_DIRS.HTML_FILES, 'blog-1/index.html')
-//   // );
-//   console.log('rm', join(SRC_DIRS.HTML_FILES, 'blog-1/.html'));
-//   // await rm(join(SRC_DIRS.HTML_FILES, 'blog-1/.html'));
-// }
 
 await emptyDir(SRC_DIRS.JSON_FILES);
 const files = await globby(join(__dirname, '../html/**/*.html'), { dot: true });
@@ -263,6 +230,60 @@ for (const file of files) {
     });
   } else console.log('-- no type', entry.name);
 }
+
+// Various index.html files:
+
+await outputJson(
+  join(SRC_DIRS.JSON_FILES, 'blog/date/index.json'),
+  {
+    title: 'Por Fechas',
+    content: `<ul>${dateIndex
+      .map(
+        (date) => `<li><a href="${date}">${date.replace('/blog/date/', '')}</a>`
+      )
+      .join('\n')}</ul>`,
+  },
+  {
+    spaces: 2,
+  }
+);
+await outputJson(
+  join(SRC_DIRS.JSON_FILES, 'blog/author/index.json'),
+  {
+    title: 'Autores',
+    content: `<ul>${dateIndex
+      .map((date) => `<li><a href="${date.name}">${date.author}</a>`)
+      .join('\n')}</ul>`,
+  },
+  {
+    spaces: 2,
+  }
+);
+
+await outputJson(
+  join(SRC_DIRS.JSON_FILES, 'blog/category/index.json'),
+  {
+    title: 'Categorías',
+    content: `<ul>${tagsIndex
+      .map((tag) => `<li><a href="${tag.name}">${tag.category}</li>`)
+      .join('\n')}</ul>`,
+  },
+  {
+    spaces: 2,
+  }
+);
+await outputJson(
+  join(SRC_DIRS.JSON_FILES, 'blog/tag/index.json'),
+  {
+    title: 'Etiquetas',
+    content: `<ul>${tagsIndex
+      .map((tag) => `<li><a href="${tag.name}">${tag.tag}</li>`)
+      .join('\n')}</ul>`,
+  },
+  {
+    spaces: 2,
+  }
+);
 
 // Not needed for the time being.
 // await outputJson(join(__dirname, 'images.json'), images, { spaces: 2 });
