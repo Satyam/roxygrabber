@@ -1,5 +1,5 @@
 import { parse as htmlParse } from 'node-html-parser';
-import { site } from './constants.mjs';
+import { site, SRC_DIRS } from './constants.mjs';
 import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -34,6 +34,10 @@ export const resolveSiteVars = (template) =>
   resolveVars(template, 'site', site);
 
 export const readSrcFile = (base, file) => readFile(join(base, file), 'utf8');
+
+const baseTemplate = resolveSiteVars(
+  await readSrcFile(SRC_DIRS.TEMPLATES, 'base.tpl.html')
+);
 
 export const prepareTemplate = async (tpl) => {
   const template = await readSrcFile(SRC_DIRS.TEMPLATES, `${tpl}.tpl.html`);

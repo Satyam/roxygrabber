@@ -13,9 +13,7 @@ import {
   readSrcFile,
 } from './utils.mjs';
 
-const baseTemplate = resolveSiteVars(
-  await readSrcFile(SRC_DIRS.TEMPLATES, 'base.tpl.html')
-);
+const template = await prepareTemplate('main');
 
 const dataFiles = await globby(join(SRC_DIRS.JSON_FILES, '**/*.json'));
 
@@ -27,7 +25,7 @@ for (const dataFile of dataFiles) {
 
   // console.log(dataFile, htmlFile);
   await ensureDir(dirname(htmlFile));
-  await writeFile(htmlFile, resolveVars(baseTemplate, 'post', data));
+  await writeFile(htmlFile, resolveVars(template, 'post', data));
 }
 
 // Copy and merge styles
