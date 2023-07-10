@@ -76,7 +76,7 @@ const postType = (doc, entry) => {
   entry.tags = doc.querySelectorAll('a.blog-link-hashtag-color').reduce(
     (tags, a) => ({
       ...tags,
-      [basename(a.getAttribute('href'))]: a.innerHTML,
+      [basename(a.getAttribute('href'))]: a.text?.replace('#', ''),
     }),
     {}
   );
