@@ -8,7 +8,9 @@
     "convert": "node src/convert.mjs",
     "debug": "node --inspect-brk src/check.mjs",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node src/toHTML.mjs"
+    "build": "node src/toHTML.mjs",
+    "hexo": "cd hexo && hexo",
+    "bh": "node src/toHexo.mjs"
   },
   "repository": {
     "type": "git",
@@ -29,8 +31,10 @@
     "better-queue": "^3.8.10",
     "fs-extra": "^11.1.1",
     "globby": "^13.2.1",
+    "hexo": "^7.0.0-rc1",
     "jsdom": "^22.1.0",
     "node-html-parser": "^6.1.5",
-    "puppeteer-core": "^20.7.4"
+    "puppeteer-core": "^20.7.4",
+    "yaml": "^2.3.1"
   }
 }
