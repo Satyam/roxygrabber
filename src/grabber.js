@@ -80,6 +80,17 @@ const go = async () => {
     ignoreDefaultArgs: ['--disable-extensions'],
   });
   const page = await browser.newPage();
+
+  // TODO switch to using Q
+  // use afterProcessDelay option on Q to prevent WIX from complaining.
+  // The list has to be mantained simply to avoid duplicates.
+  // or possibly simply put a delay here.
+  // No need for delay:
+  // networkidle0 : consider navigation to be finished when there are
+  // no more than 0 network connections for at least 500 ms.
+
+  // force list to contain objects with props: url, type, to allow for images.
+
   let more = true;
   while (more) {
     more = false;
@@ -126,6 +137,8 @@ const go = async () => {
           lista[s] = false;
           more = true;
         });
+
+        // TODO search for <img src to fetch images.
       }
     }
   }

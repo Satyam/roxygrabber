@@ -2,7 +2,6 @@
   "name": "roxygrabber",
   "version": "1.0.0",
   "description": "Screen grabber for roxy's web site",
-  "main": "index.js",
   "scripts": {
     "start": "serve new",
     "convert": "node src/convert.mjs",
@@ -10,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node src/toHTML.mjs",
     "hexo": "cd hexo && hexo",
-    "bh": "node src/toHexo.mjs"
+    "bh": "node src/toHexo.mjs",
+    "grab": "node/grabber.js"
   },
   "repository": {
     "type": "git",
