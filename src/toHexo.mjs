@@ -23,18 +23,18 @@ for (const dataFile of dataFiles) {
     !name ||
     name.startsWith('/blog') ||
     name.startsWith('/blog-1') ||
-    name.startsWith('/single-post')
+    name.startsWith('/post')
   )
     continue;
 
-  if (name.startsWith('/post')) {
+  if (name.startsWith('/single-post')) {
     // "/single-post/2016/09/03/el-libro-del-desasosiego-extracto",
     const destFile =
       join(
         HEXO,
         'source',
         '_posts',
-        name.replace('/post/', '').replaceAll('/', '-')
+        name.replace('/single-post/', '').replaceAll('/', '-')
       ) + '.md';
 
     await writeFile(
@@ -47,6 +47,7 @@ ${stringify({
   updated: data.modified_time,
   tags: Object.values(data.tags),
   categories: Object.values(data.categories),
+  author: data.author ?? 'Roxana Cabut',
   excerpt: data.description?.replaceAll('\n', ' '),
 })}
 ---
@@ -94,6 +95,7 @@ writeFile(
         'Recordar quiénes somos': '/recordar-quienes-somos',
         'Había una vez ...': '/habia-una-vez',
         'Pensar y sentir': '/pensar-y-sentir',
+        Conciencia: '/conciencia',
       },
       Contacto: '/contacto',
     },

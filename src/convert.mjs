@@ -115,32 +115,42 @@ const categoryType = (doc, entry) => {
 const tagsIndex = [];
 const tagType = (doc, entry) => {
   entry.content = getContent(doc, 'main article');
-  tagsIndex.push({
-    tag: doc.querySelector('input').getAttribute('value'),
-    name: entry.name,
-  });
+  tagsIndex.push(entry.title);
+  // tagsIndex.push({
+  //   tag: doc.querySelector('input').getAttribute('value'),
+  //   name: entry.name,
+  // });
 };
 
 const types = {
   '/index': regularPage,
   '/single-post': postType,
-  '/post': postType,
+  // '/post': postType,
   '/blog/index': regularPage,
-  '/blog-1/index': regularPage,
-  '/blog/date': dateType,
-  '/blog/author': authorType,
-  '/blog/category': categoryType,
-  '/blog/tag': tagType,
+  // '/blog-1/index': regularPage,
+  // '/blog/date': dateType,
+  '/blog/archive': dateType,
+  // '/blog/author': authorType,
+  // '/blog/category': categoryType,
+  '/blog/categories': categoryType,
+  '/blog/tags': tagType,
   '/blog/page': regularPage,
   '/acompanamiento-creativo': regularPage,
   '/agenda': regularPage,
+  '/conciencia': regularPage,
   '/contacto': regularPage,
+  '/copia-de-conciencia-corporal': regularPage,
   '/escritos': regularPage,
+  '/habia-una-vez': regularPage,
   '/libro-la-corazon': regularPage,
   '/mas-informacion': regularPage,
+  '/pensar-y-sentir': regularPage,
+  '/recordar-quienes-somos': regularPage,
   '/sesiones-individuales-de-masaje': regularPage,
+  '/sistema-rio-abierto': regularPage,
   '/talleres-de-movimiento': regularPage,
   '/talleres-sobre-comunicacion': regularPage,
+  '/trayectoria': regularPage,
 };
 
 const images = {};
@@ -155,11 +165,23 @@ for (const file of files) {
     .replaceAll(/\-+/g, '-')
     .toLowerCase();
 
-  if (name === '') name = '/index';
-  if (name === '/blog') name = '/blog/index';
-  if (name === '/blog-1') name = '/blog-1/index';
-  if (name.startsWith('/blog-1/search')) continue;
-  if (name.startsWith('/blog-1/categories')) continue;
+  if (
+    [
+      '',
+      '/blog',
+      '/blog/categories/cuento',
+      '/blog/categories/fragmentos-de-textos',
+      '/blog/categories/frases',
+      '/blog/categories/poemas',
+      '/blog/tags/autoconocimiento',
+      '/blog/tags/despertar',
+    ].includes(name)
+  ) {
+    name += '/index';
+  }
+  // if (name === '/blog-1') name = '/blog-1/index';
+  // if (name.startsWith('/blog-1/search')) continue;
+  // if (name.startsWith('/blog-1/categories')) continue;
   if (
     file === `${SRC_DIRS.HTML_FILES}.html` ||
     file === join(SRC_DIRS.HTML_FILES, 'blog.html') ||
@@ -167,13 +189,18 @@ for (const file of files) {
     file === join(SRC_DIRS.HTML_FILES, 'blog-1/.html')
   ) {
     console.error(file, name);
+    continue;
   }
   console.log(name);
   const entry = { name };
   const doc = parse(await readFile(file));
 
+  if (!doc.querySelector('head').innerHTML?.length) {
+    console.error('---empty', name);
+    continue;
+  }
   // Common data
-  entry.title = doc.querySelector('title').innerHTML.split('|')[0];
+  entry.title = doc.querySelector('title').innerHTML.split('|')[0].trim();
   entry.description = doc
     .querySelector('meta[name="description"]')
     ?.getAttribute('content');
@@ -234,7 +261,7 @@ for (const file of files) {
 // Various index.html files:
 
 await outputJson(
-  join(SRC_DIRS.JSON_FILES, 'blog/date/index.json'),
+  join(SRC_DIRS.JSON_FILES, 'blog/archive/index.json'),
   {
     title: 'Por Fechas',
     content: `<ul>${dateIndex
@@ -261,7 +288,7 @@ await outputJson(
 );
 
 await outputJson(
-  join(SRC_DIRS.JSON_FILES, 'blog/category/index.json'),
+  join(SRC_DIRS.JSON_FILES, 'blog/categories/index.json'),
   {
     title: 'Categorías',
     content: `<ul>${tagsIndex
@@ -273,7 +300,7 @@ await outputJson(
   }
 );
 await outputJson(
-  join(SRC_DIRS.JSON_FILES, 'blog/tag/index.json'),
+  join(SRC_DIRS.JSON_FILES, 'blog/tags/index.json'),
   {
     title: 'Etiquetas',
     content: `<ul>${tagsIndex

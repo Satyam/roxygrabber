@@ -4,14 +4,7 @@ import { ensureDir, readJson, copy } from 'fs-extra/esm';
 import { join, dirname } from 'node:path';
 
 import { __dirname, SRC_DIRS, DEST_DIRS } from './constants.mjs';
-import {
-  lastMod,
-  shouldUpdate,
-  resolveVars,
-  resolveSiteVars,
-  prepareTemplate,
-  readSrcFile,
-} from './utils.mjs';
+import { shouldUpdate, resolveVars, prepareTemplate } from './utils.mjs';
 
 const template = await prepareTemplate('main');
 
