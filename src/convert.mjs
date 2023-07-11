@@ -73,10 +73,10 @@ const postType = (doc, entry) => {
       }),
       {}
     );
-  entry.tags = doc.querySelectorAll('a.blog-link-hashtag-color').reduce(
+  entry.tags = doc.querySelectorAll('nav[aria-label="tags"] a').reduce(
     (tags, a) => ({
       ...tags,
-      [basename(a.getAttribute('href'))]: a.text?.replace('#', ''),
+      [basename(a.getAttribute('href'))]: a.text,
     }),
     {}
   );
