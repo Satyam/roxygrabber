@@ -1,77 +1,11 @@
 const puppeteer = require('puppeteer-core');
-const { ensureFile, outputFile } = require('fs-extra');
+const { outputFile } = require('fs-extra');
 const { join } = require('path');
-const { getHeapCodeStatistics } = require('v8');
 
 const base = 'https://roxanacabut.wixsite.com/';
 const lista = {
   '/roxanacabut': false,
 };
-const postRx = /post\/(\d+)\/(\d+)\/(\d+)\/(.+)/;
-const singlePostRx = /single-post\/(\d+)\/(\d+)\/(\d+)\/(.+)/;
-
-const posts = {};
-const singlePosts = {};
-const splitSinglePosts = async (page, _, y, m, d, file) => {
-  const title = await page.$$eval('h1', (items) => {
-    debugger;
-    return items.map((a) => a.innerText);
-  });
-  const article = await page.$$eval(
-    'div[data-hook=post-description]',
-    (items) => {
-      debugger;
-      return items.map((a) => a.innerText);
-    }
-  );
-  const categories = await page.$$eval(
-    'div[data-hook=category-label-list__item]',
-    (items) => {
-      debugger;
-      return items.map((a) => a.innerText);
-    }
-  );
-  if (!(y in posts)) posts[y] = {};
-  if (!(m in posts[y])) posts[y][m] = {};
-  if (!(d in posts[y][m])) posts[y][m][d] = {};
-  if (!(file in posts[y][m][d]))
-    posts[y][m][d][file] = {
-      title,
-      article,
-      categories,
-    };
-};
-const splitPost = async (page, _, y, m, d, file) => {
-  const title = await page.$$eval('div[data-hook=post-title]', (items) => {
-    debugger;
-    return items.map((a) => a.innerText);
-  });
-  const article = await page.$$eval(
-    'div[data-hook=post-description]',
-    (items) => {
-      debugger;
-      return items.map((a) => a.innerText);
-    }
-  );
-  const categories = await page.$$eval(
-    'div[data-hook=category-label-list__item]',
-    (items) => {
-      debugger;
-      return items.map((a) => a.innerText);
-    }
-  );
-  if (!(y in posts)) posts[y] = {};
-  if (!(m in posts[y])) posts[y][m] = {};
-  if (!(d in posts[y][m])) posts[y][m][d] = {};
-  if (!(file in posts[y][m][d]))
-    posts[y][m][d][file] = {
-      title,
-      article,
-      categories,
-    };
-};
-// pptr.dev
-// https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors/Attribute_selectors
 
 const go = async () => {
   const browser = await puppeteer.launch({
@@ -80,16 +14,6 @@ const go = async () => {
     ignoreDefaultArgs: ['--disable-extensions'],
   });
   const page = await browser.newPage();
-
-  // TODO switch to using Q
-  // use afterProcessDelay option on Q to prevent WIX from complaining.
-  // The list has to be mantained simply to avoid duplicates.
-  // or possibly simply put a delay here.
-  // No need for delay:
-  // networkidle0 : consider navigation to be finished when there are
-  // no more than 0 network connections for at least 500 ms.
-
-  // force list to contain objects with props: url, type, to allow for images.
 
   let more = true;
   while (more) {
@@ -123,12 +47,8 @@ const go = async () => {
           join(__dirname, '../html', decodeURIComponent(p)) + '.html',
           await page.content()
         );
-        const links = await page.$$eval(
-          'a[href*="roxanacabut"]',
-          // (anchors) =>
-          //   console.log(anchors)
-          // );
-          (anchors) => anchors.map((a) => a.getAttribute('href'))
+        const links = await page.$$eval('a[href*="roxanacabut"]', (anchors) =>
+          anchors.map((a) => a.getAttribute('href'))
         );
         links.forEach((l) => {
           const u = new URL(l, base);
@@ -137,12 +57,9 @@ const go = async () => {
           lista[s] = false;
           more = true;
         });
-
-        // TODO search for <img src to fetch images.
       }
     }
   }
-  console.log(JSON.stringify(posts, null, 2));
   await browser.close();
 };
 go();
