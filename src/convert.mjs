@@ -73,13 +73,15 @@ const postType = (doc, entry) => {
       }),
       {}
     );
-  entry.tags = doc.querySelectorAll('nav[aria-label="tags"] a').reduce(
-    (tags, a) => ({
-      ...tags,
-      [basename(a.getAttribute('href'))]: a.text,
-    }),
-    {}
-  );
+  entry.tags = doc
+    .querySelectorAll('#post-footer nav[aria-label="tags"] a')
+    .reduce(
+      (tags, a) => ({
+        ...tags,
+        [basename(a.getAttribute('href'))]: a.text,
+      }),
+      {}
+    );
 
   entry.content = getContent(doc, 'div.post-content__body');
 
