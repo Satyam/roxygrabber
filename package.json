@@ -10,7 +10,7 @@
     "build": "node src/toHTML.mjs",
     "hexo": "cd hexo && hexo",
     "bh": "node src/toHexo.mjs",
-    "grab": "node/grabber.js"
+    "grab": "node src/grabber.mjs"
   },
   "repository": {
     "type": "git",
