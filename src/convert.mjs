@@ -9,6 +9,9 @@ import { __dirname, SRC_DIRS } from './constants.mjs';
 const OLD_SITE = /https:\/\/roxanacabut.wixsite.com\/roxanacabut/g;
 const OLD_IMGS = /https:\/\/static.wixstatic.com\/media\/(.*?\.jpg).*/g;
 
+const allTags = {};
+const usedTags = {};
+
 export const sortDescending = (a, b) => {
   if (a < b) return 1;
   if (a > b) return -1;
@@ -33,10 +36,12 @@ const cleanImgEl = (img) => {
 
 const getContent = (doc, container) => {
   const els = doc.querySelectorAll(
-    `${container} :not(div,wow-image , style, section)`
+    `${container} :not(div,wow-image , style, section, article, iframe, svg, path, g)`
   );
   return els
     .map((el) => {
+      if (el.tagName in allTags) allTags[el.tagName] += 1;
+      else allTags[el.tagName] = 0;
       el.querySelectorAll('[class]').forEach((el) =>
         el.removeAttribute('class')
       );
@@ -53,6 +58,13 @@ const getContent = (doc, container) => {
       (s, index, a) =>
         !a.some((subS, subIndex) => index !== subIndex && subS.includes(s))
     )
+    .map((s) => {
+      const t = s.replace(/^<(\w+).*/s, '$1');
+
+      if (t in usedTags) usedTags[t] += 1;
+      else usedTags[t] = 1;
+      return s;
+    })
     .join('\n')
     .replaceAll(OLD_SITE, '')
     .replaceAll(OLD_IMGS, '/assets/img/$1');
@@ -320,3 +332,8 @@ await outputJson(
 //     .map((imgSrc) => `<img src="${imgSrc.replace(/^(.*\.jpg).*/, '$1')}" />`)
 //     .join('\n')
 // );
+
+await outputJson(join(__dirname, 'alltags.json'), allTags, { spaces: 2 });
+
+console.log('Used tags:');
+console.log(JSON.stringify(usedTags, null, 2));
