@@ -73,36 +73,6 @@ ${data.content}
   console.log(name, destFile);
 }
 
-writeFile(
-  join(HEXO, '_config.landscape.yml'),
-  stringify({
-    menu: {
-      Home: '/',
-      'Mis propuestas': {
-        'Sesiones Individuales': '/acompanamiento-creativo',
-        'Sesiones Grupales: "Escuchándonos"': '/talleres-sobre-comunicacion',
-        'Talleres de Movimiento Expresivo': '/talleres-de-movimiento',
-        'Sesiones de Masaje': '/sesiones-individuales-de-masaje',
-      },
-      'Libro: "la corazón"': '/libro-la-corazon',
-      Agenda: '/agenda',
-      'Más información': {
-        Trayectoria: '/mas-informacion',
-        'Movimiento y conciencia corporal': '/copia-de-conciencia-corporal',
-        'Sistema Río Abierto': '/sistema-rio-abierto',
-      },
-      Escritos: {
-        'Recordar quiénes somos': '/recordar-quienes-somos',
-        'Había una vez ...': '/habia-una-vez',
-        'Pensar y sentir': '/pensar-y-sentir',
-        Conciencia: '/conciencia',
-      },
-      Contacto: '/contacto',
-    },
-    fancybox: false,
-  })
-);
-
 // Copy images
 const DEST_IMAGES = join(HEXO, 'source/assets/img');
 await ensureDir(DEST_IMAGES);
