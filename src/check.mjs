@@ -11,6 +11,9 @@ const hooks = {};
 const BASE = resolve(process.cwd(), './html');
 const START = '';
 
+const singlePostRx =
+  /single-post\/(?<year>\d+)\/(?<month>\d+)\/(?<day>\d+)\/(?<slug>.+)/;
+
 const ensureEntry = (path, entryName, isDir) => {
   const { dir, name, ext } = parsePath(join(path, entryName));
   // console.log({ dir, name, ext });
@@ -42,7 +45,7 @@ const ensureEntry = (path, entryName, isDir) => {
 };
 
 const types = {
-  '/post/': (doc, entry, dataHooks) => {
+  '/post/': (doc, entry) => {
     const articles = doc.querySelectorAll('article');
     if (articles.length > 1) console.error('articles in post', articles.length);
     if (articles.length === 0) console.error('no article section', entry.name);
@@ -61,13 +64,15 @@ const types = {
     const categories = doc.querySelectorAll(
       '[data-hook="category-label-list__item"]'
     );
-    entry.categories = categories.map((cat) => cat.textContent);
+    entry.categories = categories ?? categories.map((cat) => cat.textContent);
 
     const dates = doc.querySelectorAll('[data-hook="time-ago"]');
     if (dates.length > 1) console.error('dates in post', dates.length);
-    if (dates.length === 0) console.error('no dates section', entry.name);
-    entry.dates = dates.map((date) => date.textContent);
-
+    if (dates.length === 0) {
+      console.error('no dates section', entry.name);
+    } else {
+      entry.dates = Array.from(dates).map((date) => date.textContent);
+    }
     // dataHooks.forEach((el) => {
     //   const h = el.getAttribute('data-hook');
     //   if (h.startsWith('post-')) {
@@ -75,7 +80,7 @@ const types = {
     //   }
     // });
   },
-  '???/blog/category/': (doc, entry, dataHooks) => {
+  '???/blog/category/': (doc, entry) => {
     // const titles = doc.querySelectorAll('[data-hook="post-title"]')
     // const descr = doc.querySelectorAll('[data-hook="post-description"]')
     const containers = doc.querySelectorAll('[data-hook="post-list-item"]');
@@ -91,16 +96,20 @@ const types = {
       });
     }
   },
-  roxana: (doc, entry, dataHooks) => {
-    dataHooks.forEach((el) => {
-      const h = el.getAttribute('data-hook');
-      if (h in entry.hooks) {
-        if (!Array.isArray(entry.hooks[h])) entry.hooks[h] = [entry.hooks[h]];
-        entry.hooks[h].push(el.textContent);
-      } else {
-        entry.hooks[h] = el.textContent;
-      }
-    });
+  '/single-post/': (doc, entry, dataHooks) => {
+    const catSlugRx = /\/categories\/(.*)/;
+    entry.categories = Array.from(
+      doc.querySelectorAll('a.post-categories-list__link')
+    ).reduce(
+      (cats, a) => ({
+        ...cats,
+        [a.getAttribute('href').replace(catSlugRx, '$1')]: a.innerHTML,
+      }),
+      {}
+    );
+    entry.content = Array.from(
+      doc.querySelectorAll('div.post-content__body :not(div)')
+    ).map((el) => el.outerHTML);
   },
 };
 
@@ -114,32 +123,41 @@ const analyze = async (entry) => {
     //   console.log('-  ', link.getAttribute('href'));
     //   console.log('-- ', link.textContent);
     // });
+    entry.title = doc.querySelector('title').innerHTML;
+    entry.description = doc
+      .querySelector('meta[name="description"]')
+      ?.getAttribute('content');
 
-    const dataHooks = doc.querySelectorAll('[data-hook]');
-    if (dataHooks.length) {
-      entry.hooks = {};
-      const fn = Object.keys(types).find((type) => entry.name.includes(type));
-      if (fn) return types[fn](doc, entry, dataHooks);
+    entry.og = Array.from(doc.querySelectorAll('meta[property^="og:"]')).reduce(
+      (ogs, el) => ({
+        ...ogs,
+        [el.getAttribute('property').replace('og:', '')]:
+          el.getAttribute('content'),
+      }),
+      {}
+    );
 
-      //   if (!(h in hooks)) hooks[h] = {};
-      //   if (!(entry.name in hooks[h])) hooks[h][entry.name] = 0;
-      //   hooks[h][entry.name]++;
-      //   console.log('???', el.getAttribute('data-hook'));
-    }
-    const ogs = doc.querySelectorAll('meta[property^="og:"]');
-    if (ogs.length) {
-      entry.og = {};
-      ogs.forEach((og) => {
-        entry.og[
-          og.getAttribute('property').replace('og:', '')
-        ] = og.getAttribute('content');
-        // console.log(
-        //   '#  ',
-        //   og.getAttribute('property'),
-        //   og.getAttribute('content')
-        // );
-      });
-    }
+    entry.hooks = Array.from(doc.querySelectorAll('[data-hook]')).reduce(
+      (hks, el) => {
+        const h = el.getAttribute('data-hook');
+        if (h in hks) {
+          if (!Array.isArray(hks[h])) hks[h] = [hks[h]];
+          hks[h].push(el.textContent);
+        } else {
+          hks[h] = el.textContent;
+        }
+        return hks;
+      },
+      {}
+    );
+    const fn = Object.keys(types).find((type) => entry.name.includes(type));
+    if (fn) types[fn](doc, entry);
+
+    //   if (!(h in hooks)) hooks[h] = {};
+    //   if (!(entry.name in hooks[h])) hooks[h][entry.name] = 0;
+    //   hooks[h][entry.name]++;
+    //   console.log('???', el.getAttribute('data-hook'));
+    // }
     // } else {
     //   return Promise.all(
     //     Object.keys(entry).map(async (folder) => analyze(entry[folder]))
@@ -171,5 +189,5 @@ q.push({ path: START, depth: 0 });
 // q.on('drain', () => console.log('###', JSON.stringify(pages, null, 2)));
 q.on(
   'drain',
-  async () => await outputJson('./site.json', pages, { spaces: '\t' })
+  async () => await outputJson('./site1.json', pages, { spaces: '\t' })
 );
