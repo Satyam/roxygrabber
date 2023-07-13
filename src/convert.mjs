@@ -6,8 +6,8 @@ import { join, basename } from 'node:path';
 
 import { __dirname, SRC_DIRS } from './constants.mjs';
 
-const OLD_SITE = /^https:\/\/roxanacabut.wixsite.com\/roxanacabut/;
-const OLD_IMGS = /^https:\/\/static.wixstatic.com\/media\/(.*\.jpg).*/;
+const OLD_SITE = /https:\/\/roxanacabut.wixsite.com\/roxanacabut/g;
+const OLD_IMGS = /https:\/\/static.wixstatic.com\/media\/(.*\.jpg).*/g;
 
 export const sortDescending = (a, b) => {
   if (a < b) return 1;
@@ -34,7 +34,6 @@ const cleanImgEl = (img) => {
 const getContent = (doc, container) => {
   const els = doc.querySelectorAll(`${container} :not(div, wix-image, style)`);
   return els
-    .filter((el) => !els.includes(el.parentNode))
     .map((el) => {
       el.querySelectorAll('[class]').forEach((el) =>
         el.removeAttribute('class')
@@ -48,15 +47,20 @@ const getContent = (doc, container) => {
         .removeAttribute('id')
         .removeAttribute('class').outerHTML;
     })
+    .filter(
+      (s, index, a) =>
+        !a.some((subS, subIndex) => index !== subIndex && subS.includes(s))
+    )
     .join('\n')
-    .replace(OLD_SITE, '');
+    .replaceAll(OLD_SITE, '')
+    .replaceAll(OLD_IMGS, '/assets/img/$1');
 };
 
 const getFullURL = (doc) =>
   doc
     .querySelector('link[rel="canonical"]')
     .getAttribute('href')
-    .replace(OLD_SITE, '');
+    .replaceAll(OLD_SITE, '');
 
 const postType = (doc, entry) => {
   const catSlugRx = /\/categories(\/.*)/;
@@ -160,13 +164,13 @@ const images = {};
 await emptyDir(SRC_DIRS.JSON_FILES);
 const files = await globby(join(__dirname, '../html/**/*.html'), { dot: true });
 for (const file of files) {
-  if (file === join(SRC_DIRS.HTML_FILES, 'blog-1/.html')) continue;
   let name = file
     .replace(SRC_DIRS.HTML_FILES, '')
     .replace('.html', '')
     .replaceAll(/\-+/g, '-')
     .toLowerCase();
 
+  if (['/blog/index'].includes(name)) continue;
   if (
     [
       '',
@@ -180,18 +184,6 @@ for (const file of files) {
     ].includes(name)
   ) {
     name += '/index';
-  }
-  // if (name === '/blog-1') name = '/blog-1/index';
-  // if (name.startsWith('/blog-1/search')) continue;
-  // if (name.startsWith('/blog-1/categories')) continue;
-  if (
-    file === `${SRC_DIRS.HTML_FILES}.html` ||
-    file === join(SRC_DIRS.HTML_FILES, 'blog.html') ||
-    file === join(SRC_DIRS.HTML_FILES, 'blog-1.html') ||
-    file === join(SRC_DIRS.HTML_FILES, 'blog-1/.html')
-  ) {
-    console.error(file, name);
-    continue;
   }
   console.log(name);
   const entry = { name };
@@ -270,7 +262,8 @@ await outputJson(
       .map(
         (date) => `<li><a href="${date}">${date.replace('/blog/date/', '')}</a>`
       )
-      .join('\n')}</ul>`,
+      .join('\n')
+      .replaceAll(OLD_SITE, '')}</ul>`,
   },
   {
     spaces: 2,
@@ -282,7 +275,8 @@ await outputJson(
     title: 'Autores',
     content: `<ul>${dateIndex
       .map((date) => `<li><a href="${date.name}">${date.author}</a>`)
-      .join('\n')}</ul>`,
+      .join('\n')
+      .replaceAll(OLD_SITE, '')}</ul>`,
   },
   {
     spaces: 2,
@@ -293,9 +287,10 @@ await outputJson(
   join(SRC_DIRS.JSON_FILES, 'blog/categories/index.json'),
   {
     title: 'Categorías',
-    content: `<ul>${tagsIndex
-      .map((tag) => `<li><a href="${tag.name}">${tag.category}</li>`)
-      .join('\n')}</ul>`,
+    content: `<ul>${categoriesIndex
+      .map((cat) => `<li><a href="${cat.name}">${cat.category}</li>`)
+      .join('\n')
+      .replaceAll(OLD_SITE, '')}</ul>`,
   },
   {
     spaces: 2,
@@ -307,7 +302,8 @@ await outputJson(
     title: 'Etiquetas',
     content: `<ul>${tagsIndex
       .map((tag) => `<li><a href="${tag.name}">${tag.tag}</li>`)
-      .join('\n')}</ul>`,
+      .join('\n')
+      .replaceAll(OLD_SITE, '')}</ul>`,
   },
   {
     spaces: 2,
