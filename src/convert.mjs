@@ -7,7 +7,7 @@ import { join, basename } from 'node:path';
 import { __dirname, SRC_DIRS } from './constants.mjs';
 
 const OLD_SITE = /https:\/\/roxanacabut.wixsite.com\/roxanacabut/g;
-const OLD_IMGS = /https:\/\/static.wixstatic.com\/media\/(.*\.jpg).*/g;
+const OLD_IMGS = /https:\/\/static.wixstatic.com\/media\/(.*?\.jpg).*/g;
 
 export const sortDescending = (a, b) => {
   if (a < b) return 1;
@@ -32,7 +32,9 @@ const cleanImgEl = (img) => {
 };
 
 const getContent = (doc, container) => {
-  const els = doc.querySelectorAll(`${container} :not(div, wix-image, style)`);
+  const els = doc.querySelectorAll(
+    `${container} :not(div,wow-image , style, section)`
+  );
   return els
     .map((el) => {
       el.querySelectorAll('[class]').forEach((el) =>
