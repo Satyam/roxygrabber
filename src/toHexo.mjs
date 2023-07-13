@@ -18,14 +18,8 @@ for (const dataFile of dataFiles) {
   const data = await readJson(dataFile);
 
   const { name } = data;
+  if (!name || name.startsWith('/blog')) continue;
   console.log(name);
-  if (
-    !name ||
-    name.startsWith('/blog') ||
-    name.startsWith('/blog-1') ||
-    name.startsWith('/post')
-  )
-    continue;
 
   if (name.startsWith('/single-post')) {
     // "/single-post/2016/09/03/el-libro-del-desasosiego-extracto",
