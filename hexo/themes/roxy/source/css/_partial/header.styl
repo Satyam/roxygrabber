@@ -21,7 +21,7 @@
 
 #header-inner
   position: relative
-  overflow: hidden
+  // overflow: hidden
 
 #banner
   position: absolute
@@ -74,7 +74,7 @@ $nav-link
   text-shadow: 0 1px rgba(0, 0, 0, 0.2)
   transition: opacity 0.2s
   display: block
-  padding: 20px 15px
+  padding: 1em
   &:hover
     opacity: 1
 
@@ -87,6 +87,28 @@ $nav-link
   padding: 20px 15px
   position: relative
   cursor: pointer
+
+.main-nav-item
+  position: relative
+  display: inline-block
+  border: thin solid transparent;
+  ul
+    display: none
+    position: absolute
+    min-width: 160px
+    z-index: 1
+    border-left: thin solid #fff
+    li
+      display: block
+  &:hover
+    border-bottom: thin solid #fff;
+    ul
+      display: block
+      margin-left: 3em
+      margin-top: 3.2em
+      li
+        a
+          padding: 5px
 
 .main-nav-link
   @extend $nav-link
