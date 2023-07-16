@@ -12,6 +12,7 @@
   @extend $block-caption
   float: left
 
+
 .article-category
   float: left
   line-height: 1em
@@ -21,9 +22,19 @@
   &:before
     content: "\2022"
 
+
 .article-category-link
   @extend $block-caption
   margin: 0 12px 1em
+
+.article-author
+  @extend $block-caption
+  float: left
+  line-height: 1em
+  text-shadow: 0 1px #fff
+  margin-left: 8px
+  &:before
+    content: "\2022"
 
 .article-header
   padding: article-padding article-padding 0
