@@ -1,0 +1,11 @@
+<% debugger %> <% const a = page.authors; %>
+<h1>Autores</h1>
+<ul>
+  <% for (let i = 0, l = a.length; i < l; i++) { %>
+  <li>
+    <a href="<%= url_for(a[i].path) %>"
+      ><%= a[i].author %> (<%= a[i].count %>)</a
+    >
+  </li>
+  <% } %>
+</ul>

@@ -1,0 +1,35 @@
+<h1 class="p-name article-title" itemprop="headline name">
+  <%= page.author %>
+</h1>
+<section class="archives-wrap">
+  <div class="archives">
+    <% for (let i = 0,l = page.posts.length; i < l; i++) { %>
+    <article class="archive-article archive-type-post">
+      <div class="archive-article-inner">
+        <header class="archive-article-header">
+          <a
+            href="<%= url_for(page.posts[i].path) %>"
+            class="archive-article-date"
+          >
+            <time
+              class="dt-published"
+              datetime="<%= page.posts[i].date.toISOString() %>"
+              itemprop="datePublished"
+              ><%= page.posts[i].date.format('DD/MMM/YYYY') %></time
+            >
+          </a>
+
+          <h1 itemprop="name">
+            <a
+              class="archive-article-title"
+              href="<%= url_for(page.posts[i].path) %>"
+              ><%= page.posts[i].title %></a
+            >
+          </h1>
+        </header>
+      </div>
+    </article>
+
+    <% } %>
+  </div>
+</section>
