@@ -1,19 +1,19 @@
 menu:
   Mis propuestas:
-    Sesiones Individuales: /acompanamiento-creativo
-    'Sesiones Grupales: "Escuchándonos"': /talleres-sobre-comunicacion
-    Talleres de Movimiento Expresivo: /talleres-de-movimiento
-    Sesiones de Masaje: /sesiones-individuales-de-masaje
-  'Libro: "la corazón"': /libro-la-corazon
-  Agenda: /agenda
+    Sesiones Individuales: /acompanamiento-creativo.html
+    'Sesiones Grupales: "Escuchándonos"': /talleres-sobre-comunicacion.html
+    Talleres de Movimiento Expresivo: /talleres-de-movimiento.html
+    Sesiones de Masaje: /sesiones-individuales-de-masaje.html
+  'Libro: "la corazón"': /libro-la-corazon.html
+  Agenda: /agenda.html
   Más información:
-    Trayectoria: /mas-informacion
-    Movimiento y conciencia corporal: /copia-de-conciencia-corporal
-    Sistema Río Abierto: /sistema-rio-abierto
+    Trayectoria: /mas-informacion.html
+    Movimiento y conciencia corporal: /copia-de-conciencia-corporal.html
+    Sistema Río Abierto: /sistema-rio-abierto.html
   Escritos:
-    Recordar quiénes somos: /recordar-quienes-somos
-    Había una vez ...: /habia-una-vez
-    Pensar y sentir: /pensar-y-sentir
-    Conciencia: /conciencia
-  Contacto: /contacto
+    Recordar quiénes somos: /recordar-quienes-somos.html
+    Había una vez ...: /habia-una-vez.html
+    Pensar y sentir: /pensar-y-sentir.html
+    Conciencia: /conciencia.html
+  Contacto: /contacto.html
 fancybox: false
