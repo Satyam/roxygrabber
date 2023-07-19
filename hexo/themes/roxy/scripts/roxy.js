@@ -56,3 +56,27 @@ hexo.extend.generator.register('test', function (locals) {
     }),
   ];
 });
+
+hexo.extend.generator.register('fileList', (locals) => ({
+  path: 'files.json',
+  data: {
+    json: {
+      pages: locals.pages.data
+        .sort((a, b) => (a.title === b.title ? 0 : a.title < b.title ? -1 : 1))
+        .map((p) => ({
+          file: p.source,
+          title: p.title,
+        })),
+      posts: locals.posts.data
+        .sort((a, b) =>
+          a.source === b.source ? 0 : a.source < b.source ? 1 : -1
+        )
+        .map((p) => ({
+          file: p.source,
+          title: p.title,
+          date: p.date.format('YYYY-MM-DD'),
+        })),
+    },
+    layout: ['noop'],
+  },
+}));
