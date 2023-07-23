@@ -21,16 +21,23 @@ function slugify(str) {
 
 hexo.extend.helper.register('slugify', slugify);
 
-hexo.extend.generator.register('test', function (locals) {
+let names;
+const getAuthorNames = (locals) => {
   const authors = {};
+  if (!names) {
+    locals.posts.data.forEach((p) => {
+      const { author, path, title, date } = p;
+      if (!author) return;
+      if (!(author in authors)) authors[author] = [];
+      authors[author].push({ path, title, date });
+    });
+    names = Object.keys(authors).sort();
+  }
+  return [names, authors];
+};
 
-  locals.posts.data.forEach((p) => {
-    const { author, path, title, date } = p;
-    if (!author) return;
-    if (!(author in authors)) authors[author] = [];
-    authors[author].push({ path, title, date });
-  });
-  const names = Object.keys(authors).sort();
+hexo.extend.generator.register('test', function (locals) {
+  const [names, authors] = getAuthorNames(locals);
   return [
     {
       path: 'authors/index.html',
@@ -76,6 +83,9 @@ hexo.extend.generator.register('fileList', (locals) => ({
           title: p.title,
           date: p.date.format('YYYY-MM-DD'),
         })),
+      categories: locals.categories.map((cat) => cat.name).sort(),
+      tags: locals.tags.map((t) => t.name),
+      authors: getAuthorNames(locals)[0],
     },
     layout: ['noop'],
   },
