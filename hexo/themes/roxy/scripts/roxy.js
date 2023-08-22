@@ -87,3 +87,29 @@ hexo.extend.generator.register('fileList', (locals) => ({
     authors: getAuthorNames(locals)[0],
   },
 }));
+
+const ftp = require('basic-ftp');
+
+const pwdRx = /^pwd=(\S*)/;
+
+hexo.extend.deployer.register('basicFTP', async (args) => {
+  const { host, user, secure, remote, _: cmds } = args;
+
+  const password = cmds.find((e) => pwdRx.test(e)).replace(pwdRx, '$1');
+  const client = new ftp.Client();
+  await client.access({
+    host,
+    user,
+    password,
+    secure,
+  });
+  await client.ensureDir(remote);
+  await client.pwd(remote);
+  client.trackProgress((info) => {
+    console.log(
+      `${info.name} Tamaño: ${info.bytes} Total: ${info.bytesOverall}`
+    );
+  });
+  await client.uploadFromDir(hexo.public_dir);
+  client.close();
+});

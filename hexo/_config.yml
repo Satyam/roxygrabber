@@ -102,4 +102,9 @@ theme: roxy
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  type: ''
+  type: 'basicFTP'
+  port: 21
+  host: satyam-com-ar.espacioseguro.com
+  user: satyam
+  secure: true
+  remote: /www/roxanacabut
