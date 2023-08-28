@@ -31,16 +31,24 @@ function clean(content, name) {
       .replaceAll('<p></p>', '')
   );
 
+  for (const el of data.querySelectorAll('img')) {
+    el.setAttribute(
+      'src',
+      el
+        .getAttribute('src')
+        .replace(/^\/assets\/img/, '/roxanacabut/assets/img')
+    );
+  }
   for (const el of data.querySelectorAll('[style]')) {
-    const style = el.getAttribute('style').trim();
+    const style = el
+      .getAttribute('style')
+      .replaceAll('\\n', ' ')
+      .replaceAll(/\s+/g, ' ')
+      .trim();
     const newStyle = [];
     style.split(';').forEach((spec) => {
       if (spec.trim() === '') return;
-      const [prop, value] = spec
-        .replaceAll('\\n', ' ')
-        .replaceAll(/\s+/g, ' ')
-        .split(':')
-        .map((p) => p.trim());
+      const [prop, value] = spec.split(':').map((p) => p.trim());
       if (!invalidStyles.includes(prop)) {
         newStyle.push(`${prop}:${value}`);
       }
@@ -77,13 +85,13 @@ function clean(content, name) {
     }
   }
   for (const el of data.querySelectorAll('[style]')) {
-    const style = el.getAttribute('style').trim();
+    const style = el
+      .getAttribute('style')
+      .replaceAll('\\n', ' ')
+      .replaceAll(/\s+/g, ' ')
+      .trim();
     style.split(';').forEach((spec) => {
-      const [prop, value] = spec
-        .replaceAll('\\n', ' ')
-        .replaceAll(/\s+/g, ' ')
-        .split(':')
-        .map((p) => p.trim());
+      const [prop, value] = spec.split(':').map((p) => p.trim());
       if (!(prop in specs)) {
         specs[prop] = {};
       }
