@@ -1,3 +1,4 @@
+const fs = require('hexo-fs');
 const invalidCharsRx = /[^a-z0-9 -]/g;
 const multipleSpacesRx = /\s+/g;
 const multipleDashesRx = /-+/g;
@@ -89,13 +90,14 @@ hexo.extend.generator.register('fileList', (locals) => ({
 }));
 
 const ftp = require('basic-ftp');
+const path = require('node:path');
 
 const pwdRx = /^pwd=(\S*)/;
 
 hexo.extend.deployer.register('basicFTP', async (args) => {
-  const { host, user, secure, remote, _: cmds } = args;
+  const { host, user, secure, remote } = args;
 
-  const password = cmds.find((e) => pwdRx.test(e)).replace(pwdRx, '$1');
+  const password = await fs.readFile(path.join(hexo.base_dir, '.....'));
   const client = new ftp.Client();
   await client.access({
     host,
@@ -106,8 +108,8 @@ hexo.extend.deployer.register('basicFTP', async (args) => {
   await client.ensureDir(remote);
   await client.pwd(remote);
   client.trackProgress((info) => {
-    console.log(
-      `${info.name} Tamaño: ${info.bytes} Total: ${info.bytesOverall}`
+    hexo.log.info(
+      `-- ${info.name} Tamaño: ${info.bytes} Total: ${info.bytesOverall} --`
     );
   });
   await client.uploadFromDir(hexo.public_dir);
